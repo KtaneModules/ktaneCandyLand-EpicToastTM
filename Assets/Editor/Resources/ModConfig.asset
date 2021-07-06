@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 615501dbe4f3fe94fbf4b564abb10237, type: 3}
+  m_Name: ModConfig
+  m_EditorClassIdentifier: 
+  id: candyLand
+  title: Candy Land
+  author: EpicToast
+  description: "Candy Land: now with actual skill required.\nThis module was created
+    for the KTaNE Modding Jam.\r\n\nmoduleId: candyLand / cruelCandyLand\n\nManuals:\nhttps://ktane.timwi.de/HTML/Candy%Land.html\nhttps://ktane.timwi.de/HTML/Cruel%Candy%Land.html"
+  version: v1.0
+  outputFolder: build
+  previewImage: {fileID: 2800000, guid: c5be576621be0a247a5ed386abf0f4e5, type: 3}
