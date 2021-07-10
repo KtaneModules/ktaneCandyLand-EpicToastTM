@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
 using System.Linq;
+using System.Text.RegularExpressions;
+using UnityEngine;
 using KModkit;
-using System;
 using Random = UnityEngine.Random;
 
 public class CruelCandyLandScript : MonoBehaviour {
@@ -9,17 +11,19 @@ public class CruelCandyLandScript : MonoBehaviour {
     public KMBombModule Module;
     public KMAudio Audio;
     public KMBombInfo Info;
+    public KMColorblindMode Colorblind;
     public KMSelectable upArrow, downArrow, screen;
     public Material[] candyLandMats, unoMats, cahMats, baseballMats, cardiMats;
     public Material codenames, credit;
     public MeshRenderer cardRenderer;
     public MeshRenderer[] deckRenderer;
-    public TextMesh screenText, unoText, cahText, baseballText, codenamesText;
+    public TextMesh screenText, unoText, cahText, baseballText, codenamesText, cbText;
     public TextMesh[] creditTexts;
 
     private static int _moduleIdCounter = 1;
     private int _moduleId;
     private bool solved;
+    private bool cbON;
 
     private readonly int[] map = { 99, 1, 2, 3, 2, 0, 1, 5, 4, 3, 0, 2, 0, 3, 1, 5, 2, 4, 5, 1, 3, 4, 3, 5, 0, 2, 4, 0, 5, 4, 2 }; // ROYGBP
     private int[] spacesAhead;
@@ -28,10 +32,11 @@ public class CruelCandyLandScript : MonoBehaviour {
     private int correctAnswerPosition = 0;
 
     private bool[] canBeDrawn = { true, true, true, true, true, true, true, true, true, true, true, true }; // 0-5 are the 1-cards, 6-11 are the 2-cards
-    private readonly string[] cardNames = {
+    private static readonly string[] cardNames = {
         "1 red square", "1 orange square", "1 yellow square", "1 green square", "1 blue square", "1 purple square", "2 red squares", "2 orange squares", "2 yellow squares", "2 green squares", "2 blue squares", "2 purple squares" };
+    private static readonly string[] normalColors = { "Red", "Orange", "Yellow", "Green", "Blue", "Purple" };
     private int cardDrawn = 0;
-    private readonly string[] caseNames = { "Candy Land card", "Uno card", "Cards Against Humanity card", "Codenames card", "baseball card", "credit card", "picture of Cardi B" };
+    private static readonly string[] caseNames = { "Candy Land card", "Uno card", "Cards Against Humanity card", "Codenames card", "baseball card", "credit card", "picture of Cardi B" };
 
     private int screenNumber = 0;
 
@@ -48,6 +53,8 @@ public class CruelCandyLandScript : MonoBehaviour {
         for (int i = 0; i < 3; i++)
             deckRenderer[i].material = candyLandMats[Random.Range(0, 12)];
         GenerateCard();
+        if (Colorblind.ColorblindModeActive)
+            ToggleCB();
     }
 
     void GenerateCard()
@@ -63,8 +70,9 @@ public class CruelCandyLandScript : MonoBehaviour {
         Audio.PlaySoundAtTransform("card" + Random.Range(1, 11), Module.transform);
         screenText.text = "00";
         screenNumber = 0;
-        
-        spacesAhead = new int[map.Length - playerPosition - 1];
+
+        if (playerPosition != map.Length - 1)
+            spacesAhead = new int[map.Length - playerPosition - 1];
         for (int i = 0; i < spacesAhead.Length; i++)
             spacesAhead[i] = map[playerPosition + i + 1];
         
@@ -109,9 +117,10 @@ public class CruelCandyLandScript : MonoBehaviour {
         {
             case 0: // Candy Land
                 cardRenderer.material = candyLandMats[cardDrawn];
+                cbText.text = normalColors[cardDrawn % 6];
                 break;
             case 1: // Uno
-                string[] unoColorNames = { "red", "yellow", "green", "blue" };
+                string[] unoColorNames = { "Red", "Yellow", "Green", "Blue" };
                 int unoColor = Random.Range(0, 4); // RYGB
                 if (playerPosition == 0)
                     unoColor = Random.Range(0, 3); // obligatory sloppy workaround #2 :zany_face:
@@ -130,6 +139,7 @@ public class CruelCandyLandScript : MonoBehaviour {
                 }
                 
                 cardRenderer.material = unoMats[unoColor];
+                cbText.text = unoColorNames[unoColor];
                 unoText.text = unoCardText[unoIndex];
 
                 DebugMsg("It was " + unoColorNames[unoColor]);
@@ -166,13 +176,13 @@ public class CruelCandyLandScript : MonoBehaviour {
                 if (cahIndex % 4 < 2)
                 {
                     cardRenderer.material = cahMats[0];
-                    cahText.color = new Color32(0, 0, 0, 255);
+                    cahText.color = Color.black;
                     DebugMsg("The card was white.");
                 }
                 else
                 {
                     cardRenderer.material = cahMats[1];
-                    cahText.color = new Color32(255, 255, 255, 255);
+                    cahText.color = Color.white;
                     DebugMsg("The card was black.");
                 }
                 
@@ -316,6 +326,7 @@ public class CruelCandyLandScript : MonoBehaviour {
                 break;
             case 6: // Cardi B
                 cardRenderer.material = cardiMats[cardDrawn];
+                cbText.text = "Cardi B";
                 DebugMsg("Cardi B");
                 break;
             default:
@@ -323,7 +334,8 @@ public class CruelCandyLandScript : MonoBehaviour {
                 Module.HandlePass();
                 break;
         };
-
+        if (randomCase >= 2 && randomCase != 6)
+            cbText.text = "idk";
         DebugMsg("The card was actually " + cardNames[cardDrawn] + ".");
         DebugMsg("The correct answer was " + correctAnswer.ToString() + ".");
 
@@ -355,6 +367,8 @@ public class CruelCandyLandScript : MonoBehaviour {
             if (playerPosition == map.Length - 1)
             {
                 Module.HandlePass();
+                solved = true;
+                cbText.text = "BLAN";
                 DebugMsg("You won the game! Module solved.");
             }
 
@@ -374,5 +388,47 @@ public class CruelCandyLandScript : MonoBehaviour {
     void DebugMsg(string message)
     {
         Debug.LogFormat("[Cruel Candy Land #{0}] {1}", _moduleId, message);
+    }
+    void ToggleCB()
+    {
+        cbON = !cbON;
+        cbText.gameObject.SetActive(cbON);
+    }
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        command = command.Trim().ToUpperInvariant();
+        Match m = Regex.Match(command, @"^SUBMIT\s+([1-9]?[0-9])$");
+        if (m.Success)
+        {
+            yield return null;
+            int target = int.Parse(m.Groups[1].Value);
+            KMSelectable which = screenNumber < target ? upArrow : downArrow;
+            while (screenNumber != target)
+            {
+                which.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+            }
+            screen.OnInteract();
+        }
+        else if (command.EqualsAny("COLORBLIND", "COLOURBLIND", "COLOR-BLIND", "COLOUR-BLIND", "CB"))
+        {
+            yield return null;
+            ToggleCB();
+        }
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        while (!solved)
+        {
+            KMSelectable which = screenNumber < correctAnswer ? upArrow : downArrow;
+            while (screenNumber != correctAnswer)
+            {
+                which.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+            }
+            screen.OnInteract();
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 }
