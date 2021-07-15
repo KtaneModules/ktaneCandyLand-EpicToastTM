@@ -195,23 +195,64 @@ public class CruelCandyLandScript : MonoBehaviour {
                     "LABYRINTH", "LOST", "WALLS", "MINOTAUR", "PATHFINDER",
                     "REPETITION", "FRACTAL", "RECURSION", "AGAIN", "RECURRENT",
                     "FORCE", "GRAVITY", "MOMENTUM", "NEWTON", "ACCELERATION",
-                    "EUROPEANS", "TAKEOVER", "SETTLING", "ASSIMILATE", "TERRITORY",
-                    "WEIRD", "WONKY", "ODD", "ANOMALOUS", "STRANGE",
+                    "EUROPE", "TAKEOVER", "SETTLING", "ASSIMILATE", "TERRITORY",
+                    "WEIRD", "WONKY", "PECULIAR", "ANOMALOUS", "STRANGE",
                     "DICE", "MONOPOLY", "SCRABBLE", "TABLETOP", "CHESS",
-                    "OLD", "EIGHTIES", "NOSTALGIA", "AESTHETIC", "ANTIQUE",
-                    "PROGRAMMING", "ROBOT", "COMPUTER", "ELECTRONICS", "MACHINERY",
-                    "HARRY POTTER", "ALCHEMY", "HEX", "SPELL", "WAND",
-                    "HAMBURGER", "DINNER", "STEAK", "KFC", "DESSERT",
+                    "PAST", "EIGHTIES", "NOSTALGIA", "AESTHETIC", "ANTIQUE",
+                    "PROGRAMMING", "ROBOT", "COMPUTER", "ELECTRONIC", "MACHINERY",
+                    "ILLUSION", "ALCHEMY", "WIZARD", "SPELL", "WAND",
+                    "HAMBURGER", "DINNER", "STEAK", "EDIBLE", "DESSERT",
                     "KABOOM", "MODULE", "DETONATE", "DEFUSING", "DYNAMITE",
                     "SPREAD", "STUCK", "CRAM", "PRESERVE", "CLOG"
                 };
-                string codenamesDrawn = codenamesCards[cardDrawn * 5 + Random.Range(0, 5)];
-                char[] codenamesScrambled = codenamesDrawn.ToCharArray().Shuffle();
-
-                for (int i = 0; i < codenamesScrambled.Length; i++)
+                string[] codenamesOuter = // sloppy workaround #4 :zany_face:
                 {
-                    codenamesText.text += codenamesScrambled[i].ToString();
+                    "LH", "LT", "WS", "MR", "PR",
+                    "RN", "FL", "RN", "AN", "RT",
+                    "FE", "GY", "MM", "NN", "AN",
+                    "EE", "TR", "SG", "AE", "TY",
+                    "WD", "WY", "PR", "AS", "SE",
+                    "DE", "MY", "SE", "TP", "CS",
+                    "PT", "ES", "NA", "AC", "AE",
+                    "PG", "RT", "CR", "EC", "MY",
+                    "IN", "AY", "WD", "SL", "WD",
+                    "HR", "DR", "SK", "EE", "DT",
+                    "KM", "ME", "DE", "DG", "DE",
+                    "SD", "SK", "CM", "PE", "CG"
+                };
+                string[] codenamesInner =
+                {
+                    "ABYRINT", "OS", "ALL", "INOTAU", "ATHFINDE",
+                    "EPETITIO", "RACTA", "ECURSIO", "GAI", "ECURREN",
+                    "ORC", "RAVIT", "OMENTU", "EWTO", "CCELERATIO",
+                    "UROP", "AKEOVE", "ETTLIN", "SSIMILAT", "ERRITOR",
+                    "EIR", "ONK", "ECULIA", "NOMALOU", "TRANG",
+                    "IC", "ONOPOL", "CRABBL", "ABLETO", "HES",
+                    "AS", "IGHTIE", "OSTALGI", "ESTHETI", "NTIQU",
+                    "ROGRAMMIN", "OBO", "OMPUTE", "LECTRONI", "ACHINER",
+                    "LLUSIO", "LCHEM", "IZAR", "PEL", "AN",
+                    "AMBURGE", "INNE", "TEA", "DIBL", "ESSER",
+                    "ABOO", "ODUL", "ETONAT", "EFUSIN", "YNAMIT",
+                    "PREA", "TUC", "RA", "RESERV", "LO"
+                };
+
+                int codenamesRandom = Random.Range(0, 5);
+                string codenamesDrawn = codenamesCards[cardDrawn * 5 + codenamesRandom];
+                string codenamesChosenInner = codenamesInner[cardDrawn * 5 + codenamesRandom];
+                string codenamesShuffledString = "";
+                char[] codenamesShuffled = codenamesChosenInner.ToCharArray().Shuffle();
+                for (int i = 0; i < codenamesShuffled.Length; i++)
+                    codenamesShuffledString += codenamesShuffled[i];
+                while (codenamesShuffledString == codenamesChosenInner)
+                {
+                    codenamesShuffledString = "";
+                    codenamesShuffled = codenamesChosenInner.ToCharArray().Shuffle();
+                    for (int i = 0; i < codenamesShuffled.Length; i++)
+                        codenamesShuffledString += codenamesShuffled[i];
                 }
+
+                codenamesText.text = codenamesOuter[cardDrawn * 5 + codenamesRandom].First().ToString() + codenamesShuffledString + codenamesOuter[cardDrawn * 5 + codenamesRandom].Last().ToString();
+
                 cardRenderer.material = codenames;
 
                 DebugMsg("The scrambled word was " + codenamesText.text);
