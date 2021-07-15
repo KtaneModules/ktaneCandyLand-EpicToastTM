@@ -1,19 +1,25 @@
-﻿using UnityEngine;
+﻿using System.Collections;
 using System.Linq;
+using System.Text.RegularExpressions;
+using UnityEngine;
+using KModkit;
+using Random = UnityEngine.Random;
 
 public class CandyLandScript : MonoBehaviour {
 
     public KMBombModule Module;
     public KMAudio Audio;
+    public KMColorblindMode Colorblind;
     public KMSelectable upArrow, downArrow, screen;
     public Material[] cardMats;
     public MeshRenderer cardRenderer;
     public MeshRenderer[] deckRenderer;
-    public TextMesh screenText;
+    public TextMesh screenText, cbText;
 
     private static int _moduleIdCounter = 1;
     private int _moduleId;
     private bool solved;
+    private bool cbON;
 
     private readonly int[] map = { 99, 1, 2, 3, 2, 0, 1, 5, 4, 3, 0, 2, 0, 3, 1, 5, 2, 4, 5, 1, 3, 4, 3, 5, 0, 2, 4, 0, 5, 4, 2 }; // ROYGBP
     private int[] spacesAhead;
@@ -22,7 +28,8 @@ public class CandyLandScript : MonoBehaviour {
     private int correctAnswerPosition = 0;
 
     private bool[] canBeDrawn = { true, true, true, true, true, true, true, true, true, true, true, true }; // 0-5 are the 1-cards, 6-11 are the 2-cards
-    private readonly string[] cardNames = { "1 red square", "1 orange square", "1 yellow square", "1 green square", "1 blue square", "1 purple square", "2 red squares", "2 orange squares", "2 yellow squares", "2 green squares", "2 blue squares", "2 purple squares" };
+    private static readonly string[] cardNames = { "1 red square", "1 orange square", "1 yellow square", "1 green square", "1 blue square", "1 purple square", "2 red squares", "2 orange squares", "2 yellow squares", "2 green squares", "2 blue squares", "2 purple squares" };
+    private static readonly string[] colorNames = { "Red", "Orange", "Yellow", "Green", "Blue", "Purple" };
     private int cardDrawn = 0;
 
     private int screenNumber = 0;
@@ -39,6 +46,8 @@ public class CandyLandScript : MonoBehaviour {
         for (int i = 0; i < 3; i++)
             deckRenderer[i].material = cardMats[Random.Range(0, 12)];
         GenerateCard();
+        if (Colorblind.ColorblindModeActive)
+            ToggleCB();
     }
 
     void GenerateCard()
@@ -46,8 +55,8 @@ public class CandyLandScript : MonoBehaviour {
         Audio.PlaySoundAtTransform("card" + Random.Range(1, 11), Module.transform);
         screenText.text = "00";
         screenNumber = 0;
-        
-        spacesAhead = new int[map.Length - playerPosition - 1];
+        if (playerPosition != map.Length - 1)
+            spacesAhead = new int[map.Length - playerPosition - 1];
         for (int i = 0; i < spacesAhead.Length; i++)
             spacesAhead[i] = map[playerPosition + i + 1];
 
@@ -70,6 +79,7 @@ public class CandyLandScript : MonoBehaviour {
         DebugMsg("The card is " + cardNames[cardDrawn] + ".");
 
         cardRenderer.material = cardMats[cardDrawn];
+        cbText.text = colorNames[cardDrawn % 6];
 
         correctAnswer = 1;
         correctAnswerPosition = playerPosition + 1;
@@ -112,12 +122,16 @@ public class CandyLandScript : MonoBehaviour {
     void Submit()
     {
         screen.AddInteractionPunch(2);
+        if (solved)
+            return;
         if (screenNumber == correctAnswer)
         {
             playerPosition += correctAnswer;
             if (playerPosition == map.Length - 1)
             {
                 Module.HandlePass();
+                cbText.text = "ok then";
+                solved = true;
                 DebugMsg("You won the game! Module solved.");
             }
 
@@ -137,5 +151,52 @@ public class CandyLandScript : MonoBehaviour {
     void DebugMsg(string message)
     {
         Debug.LogFormat("[Candy Land #{0}] {1}", _moduleId, message);
+    }
+    void ToggleCB()
+    {
+        cbON = !cbON;
+        cbText.gameObject.SetActive(cbON);
+    }
+
+    #pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"Use <!{0} submit 23> to enter that number into the module. Use <!{0} colorblind> to toggle colorblind mode.";
+    #pragma warning restore 414
+
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        command = command.Trim().ToUpperInvariant();
+        Match m = Regex.Match(command, @"^SUBMIT\s+([1-9]?[0-9])$");
+        if (m.Success)
+        {
+            yield return null;
+            int target = int.Parse(m.Groups[1].Value);
+            KMSelectable which = screenNumber < target ? upArrow : downArrow;
+            while (screenNumber != target)
+            {
+                which.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+            }
+            screen.OnInteract();
+        }
+        else if (command.EqualsAny("COLORBLIND", "COLOURBLIND", "COLOR-BLIND", "COLOUR-BLIND", "CB"))
+        {
+            yield return null;
+            ToggleCB();
+        }
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        while (!solved)
+        {
+            KMSelectable which = screenNumber < correctAnswer ? upArrow : downArrow;
+            while (screenNumber != correctAnswer)
+            {
+                which.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+            }
+            screen.OnInteract();
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 }
