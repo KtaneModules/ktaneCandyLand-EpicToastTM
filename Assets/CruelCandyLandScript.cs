@@ -196,7 +196,7 @@ public class CruelCandyLandScript : MonoBehaviour {
                     "REPETITION", "FRACTAL", "RECURSION", "AGAIN", "RECURRENT",
                     "FORCE", "GRAVITY", "MOMENTUM", "NEWTON", "ACCELERATION",
                     "EUROPE", "TAKEOVER", "SETTLING", "ASSIMILATE", "TERRITORY",
-                    "WEIRD", "WONKY", "PECULIAR", "ANOMALOUS", "STRANGE",
+                    "EXOTIC", "WONKY", "PECULIAR", "ANOMALOUS", "STRANGE",
                     "DICE", "MONOPOLY", "SCRABBLE", "TABLETOP", "CHESS",
                     "PAST", "EIGHTIES", "NOSTALGIA", "AESTHETIC", "ANTIQUE",
                     "PROGRAMMING", "ROBOT", "COMPUTER", "ELECTRONIC", "MACHINERY",
@@ -211,7 +211,7 @@ public class CruelCandyLandScript : MonoBehaviour {
                     "RN", "FL", "RN", "AN", "RT",
                     "FE", "GY", "MM", "NN", "AN",
                     "EE", "TR", "SG", "AE", "TY",
-                    "WD", "WY", "PR", "AS", "SE",
+                    "EC", "WY", "PR", "AS", "SE",
                     "DE", "MY", "SE", "TP", "CS",
                     "PT", "ES", "NA", "AC", "AE",
                     "PG", "RT", "CR", "EC", "MY",
@@ -226,7 +226,7 @@ public class CruelCandyLandScript : MonoBehaviour {
                     "EPETITIO", "RACTA", "ECURSIO", "GAI", "ECURREN",
                     "ORC", "RAVIT", "OMENTU", "EWTO", "CCELERATIO",
                     "UROP", "AKEOVE", "ETTLIN", "SSIMILAT", "ERRITOR",
-                    "EIR", "ONK", "ECULIA", "NOMALOU", "TRANG",
+                    "XOTI", "ONK", "ECULIA", "NOMALOU", "TRANG",
                     "IC", "ONOPOL", "CRABBL", "ABLETO", "HES",
                     "AS", "IGHTIE", "OSTALGI", "ESTHETI", "NTIQU",
                     "ROGRAMMIN", "OBO", "OMPUTE", "LECTRONI", "ACHINER",
@@ -428,7 +428,7 @@ public class CruelCandyLandScript : MonoBehaviour {
 
     void DebugMsg(string message)
     {
-        Debug.LogFormat("[Cruel Candy Land #{0}] {1}", _moduleId, message);
+        Debug.LogFormat("[Cruel Candy Land #{0}] {1}", _moduleId, message.Replace('\n', ' '));
     }
     void ToggleCB()
     {
