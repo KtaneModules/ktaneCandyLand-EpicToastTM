@@ -203,7 +203,7 @@ public class CruelCandyLandScript : MonoBehaviour {
                     "ILLUSION", "ALCHEMY", "WIZARD", "SPELL", "WAND",
                     "HAMBURGER", "DINNER", "STEAK", "EDIBLE", "DESSERT",
                     "KABOOM", "MODULE", "DETONATE", "DEFUSING", "DYNAMITE",
-                    "SPREAD", "STUCK", "CRAM", "PRESERVE", "CLOG"
+                    "SPREAD", "STUCK", "CRAM", "JELLY", "CLOG"
                 };
                 string[] codenamesOuter = // sloppy workaround #4 :zany_face:
                 {
