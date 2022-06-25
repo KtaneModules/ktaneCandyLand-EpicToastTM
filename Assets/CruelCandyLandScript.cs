@@ -166,7 +166,7 @@ public class CruelCandyLandScript : MonoBehaviour {
                     "If you don't trust\nyour experts, you\ncan always flip\nthe coin.",
                     "Video poker? I\nhardly know 'er!", // game, no POOP
                     "Thankfully, you\ndon't need to\ndeal with snakes\nor climb ladders\nto get out of this.",
-                    "If you're having a\nhard time, use\nSpecial Expert\nTechnology\n(SET).",
+                    "Is something\nmalfunctioning\nin that small\nhead of yours?",
                     "Apparently this\nbomb is lousy at\nplaying chess.", // game, POOP
                     "It's technically\nnot murder if the\nbomb kills those\npeople.",
                     "Call a point of\norder if your\nexperts are\ncheating."
